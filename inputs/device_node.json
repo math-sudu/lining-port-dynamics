@@ -1,0 +1,24 @@
+{
+  "reference": "so2022",
+  "doi": "10.1038/s41528-022-00200-9",
+  "published_sensing_element": {
+    "material": "Boron-doped single-crystalline silicon nanomembrane",
+    "longitudinal_orientation": "[110]",
+    "length_m": 0.0002,
+    "width_m": 0.00001,
+    "silicon_thickness_m": 0.0000002,
+    "polyimide_substrate_thickness_m": 0.0000125,
+    "assembled_film_thickness_m_approx": 0.000015,
+    "longitudinal_gauge_factor_approx": 50,
+    "reported_tensile_characterization_range": [0, 0.01]
+  },
+  "gauge_length_m": 0.0002,
+  "circuit": {
+    "resistance": 100000.0,
+    "gauge_factor": 50.0,
+    "leakage_resistance": 10000000.0,
+    "coupling": 0.3,
+    "voltage": 1.0
+  },
+  "mapping": "The published longitudinal gauge factor and active length define transduction and strain averaging. The long axis follows local circumferential strain. Uniform transfer over the active length is the bonded-node approximation. Nominal resistance, reference and leakage resistors, capacitors, links and probe are this study's circuit choices; they are not measurements of the published assembly."
+}

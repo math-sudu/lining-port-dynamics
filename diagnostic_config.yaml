@@ -1,0 +1,27 @@
+version: diagnostic-0.2
+source_run: results/round1
+interpretation: exploratory diagnosis using previously inspected families; not a new confirmatory test
+models: [P0, P3_coupled, P4_coupled]
+layouts: [0, 3]
+noise_conditions:
+  noiseless: {sigma: 0.0, pairing: shared}
+  shared_noise: {sigma: 0.01, pairing: shared}
+  independent_noise: {sigma: 0.01, pairing: independent}
+noise_seed: 920260926
+protocols:
+  seen_L0: {train: 0, validation: 0, test: 0, layout_policy: seen}
+  transfer_L0_L3: {train: 0, validation: 0, test: 3, layout_policy: unseen_test}
+  refit_L3: {train: 3, validation: 3, test: 3, layout_policy: seen}
+ridge_alphas: [0.01, 0.1, 1.0, 10.0, 100.0]
+questions:
+  - Can a fixed linear readout distinguish new structural families on the same layout?
+  - What changes when only the test layout changes while the predictor stays frozen?
+  - Does target-layout labelled refitting remove the problem?
+  - How much do noiseless observations and independent acquisition noise change these diagnostics?
+  - How much four-port evidence accumulates over the full sequence when nuisance parameters are known?
+rules:
+  - Reuse saved FE local forces and regenerate clean network outputs without subtracting noise.
+  - Keep all family splits from round1. Replicas never become independent families.
+  - Share each acquisition noise realization across physical configurations only; report shared-pair noise separately.
+  - The two-template Gaussian calculation knows the paired clean templates and is an offline conditional oracle.
+  - Keep alpha and kappa fixed; do not optimize physical design or digital recurrent models.

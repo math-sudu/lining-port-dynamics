@@ -1,0 +1,288 @@
+# Provisional research configuration. No FE or learning experiment has been run.
+spec_version: '0.1'
+date: '2026-09-26'
+status: provisional_design_not_executed
+purpose: conditional numerical feasibility; local support softening, not true void
+all_numeric_defaults_are_provisional: true
+seed: 20260926
+platform:
+  primary: OpenSeesPy
+  software_version: pin installed release and commit before formal data generation
+  independent_checks:
+  - separate_2d_frame_assembly
+  - FEniCSx_plane_stress_ring
+structure:
+  model: 2d_complete_linear_elastic_beam_ring
+  element: elasticBeamColumn
+  geometry_transform: Linear
+  radius_m: 3.0
+  width_m: 1.0
+  thickness_m:
+    distribution: uniform
+    low: 0.27
+    high: 0.33
+  youngs_modulus_Pa:
+    distribution: uniform
+    low: 27000000000.0
+    high: 33000000000.0
+  foundation:
+    law: bilateral_linear
+    radial_modulus_N_m3:
+      distribution: uniform
+      low: 40000000.0
+      high: 60000000.0
+    tangential_radial_ratio: 0.05
+    nodal_stiffness_rule: k * b * tributary_arc_length
+  pressure:
+    p0_Pa:
+      distribution: uniform
+      low: 100000.0
+      high: 300000.0
+    second_harmonic_amplitude:
+      distribution: uniform
+      low: 0.0
+      high: 0.3
+    phase_rad:
+      distribution: uniform
+      low: 0.0
+      high: 6.283185307179586
+  target:
+    negative_label: 0
+    positive_label: 1
+    negative_peak_reduction: 0.0
+    positive_peak_reduction:
+      distribution: uniform
+      low: 0.3
+      high: 0.6
+    sector_width_deg: 30.0
+    profile: raised_cosine
+    sector_center: uniform_full_circle
+  mesh:
+    initial_elements: 128
+    convergence_elements:
+    - 64
+    - 128
+    - 256
+    - 512
+  continuum_validation:
+    assumption: plane_stress
+    poisson_ratio: 0.2
+layout:
+  mvp_nodes: 64
+  formal_nodes: 128
+  spatial_distribution: uniform_annulus_area
+  sensitive_axis: local_tangent
+  gauge_length_m: 0.01
+  preserve_area_quantiles_across_geometry_changes: true
+  no_rejection_for_disconnection_or_missing_ports: true
+node:
+  state: normalized_voltage
+  strain_scale: 0.0001
+  strain_encoding: tanh(epsilon / strain_scale)
+  gain: a0 * (1 + eta * encoded_strain)
+  eta: 0.5
+  a0:
+    distribution: uniform
+    low: 0.9
+    high: 1.1
+  tau0_s:
+    distribution: loguniform
+    low: 0.02
+    high: 0.08
+  homogeneous_tau_diagnostic_s: 0.05
+  tau_law: tau0 * exp(alpha * encoded_strain)
+  alpha_default_candidate: 0.5
+  alpha_candidates:
+  - -1.0
+  - -0.5
+  - 0.0
+  - 0.5
+  - 1.0
+  tau_frozen_within_interrogation: true
+  individual_parameters_label_trained: false
+  physical_interpretation: assumed lumped gain, leakage, capacitance and conductive
+    links; no verified device claim
+coupling:
+  source: assumed pre-existing conductive links
+  directed: false
+  cutoff_m: 0.6
+  decay_length_m: 0.3
+  require_segment_inside_annulus: true
+  weights: exp(-distance / decay_length)
+  self_edges: false
+  kappa_candidates:
+  - 0.0
+  - 0.1
+  - 0.3
+  - 1.0
+  - 3.0
+  force_connected: false
+  layout_spectral_normalization: false
+  delay: neglected_conditionally
+probe:
+  independent_waveforms: 1
+  distribution: common_reference_with_isolated_node_input
+  reset_duration_s: 2.0
+  active_duration_s: 2.0
+  total_duration_s: 4.0
+  type: fixed_bipolar_PRBS
+  chip_duration_s: 0.02
+  levels:
+  - -1.0
+  - 1.0
+  seed: 4100
+  same_waveform_for_all_samples: true
+  mechanical_excitation: false
+receiver:
+  channels: 4
+  port_angles_deg:
+  - 0
+  - 90
+  - 180
+  - 270
+  port_radius_m: 0.5
+  selection: nearest_eligible_node_without_reuse
+  require_port_lead_segment_inside_annulus: true
+  ideal_high_impedance: true
+  missing_ports: retain_mask_and_report_coverage
+  filter:
+    type: Butterworth_lowpass
+    order: 4
+    cutoff_Hz: 40.0
+  sample_rate_Hz: 200.0
+  samples_per_channel: 400
+  gain_default: 1.0
+  offset_default: 0.0
+  nominal_training_noise_sigma: 0.01
+  normalized_reference_amplitude: 1.0
+  noise_sigma_relative_to_fixed_reference:
+  - 0.0
+  - 0.001
+  - 0.01
+  - 0.05
+  nominal_clipping: false
+physical_comparison:
+  families:
+  - P0_memoryless_uncoupled
+  - P1_memoryless_quasistatic_coupled
+  - P2_fixed_homogeneous_tau
+  - P3_fixed_heterogeneous_tau
+  - P4_strain_dependent_tau
+  oracle: separate_full_state_reference_not_in_deployable_ranking
+  readout: ridge_on_flattened_external_sequence_and_4_masks
+  max_trainable_readout_coefficients: 1605
+  diagnostic_readout: ridge_on_final_4_samples_and_masks
+  max_global_design_configs_per_family: 30
+  controls:
+  - matched_tau_range_using_training_only
+  - equal_gain_design_budget
+  - output_range_and_SNR_match
+digital_comparison:
+  models:
+  - ridge
+  - ESN
+  - GRU
+  - LTC
+  - CfC
+  input_whitelist:
+  - z
+  - q
+  - t
+  - channel_mask
+  fixed_external_data_for_all_models: true
+  max_configs_per_model: 30
+  max_epochs: 100
+  early_stopping_patience: 15
+  final_training_seeds: 5
+  GNN: false
+  LSM: false
+  report_costs:
+  - trainable_params
+  - fixed_params
+  - state_dimension
+  - wall_time
+  - peak_memory
+  - nfev
+data:
+  group_key: scenario_family_id
+  split_before_generation: true
+  mvp:
+    train_families: 60
+    validation_families: 20
+    test_families: 20
+    train_layouts: 2
+    validation_new_layouts: 1
+    test_new_layouts: 1
+  formal:
+    train_families: 600
+    validation_families: 200
+    test_id_families: 200
+    test_ood_families: 200
+    train_layouts: 20
+    validation_new_layouts: 5
+    test_new_layouts: 20
+    layouts_per_family: 5
+  ood_ranges:
+    youngs_modulus_GPa:
+    - - 22
+      - 25
+    - - 35
+      - 38
+    thickness_m:
+    - - 0.24
+      - 0.26
+    - - 0.34
+      - 0.36
+    radial_modulus_MN_m3:
+    - - 25
+      - 35
+    - - 65
+      - 80
+  test_matrix:
+    T1: seen_layout_new_ID_family
+    T2: unseen_layout_new_ID_family
+    T3: seen_layout_OOD_parameters
+    T4: unseen_layout_OOD_parameters
+  transfer_protocols:
+  - zero_adjustment
+  - 10_healthy_calibration_cases
+  - 5_or_20_labelled_cases_per_class
+  - full_target_retraining
+  calibration_and_query_family_disjoint: true
+solver_validation:
+  rtol: 1.0e-07
+  atol: 1.0e-09
+  split_at_input_jumps: true
+  reference: small_network_augmented_matrix_exponential
+  fe_equilibrium_relative_tol: 1.0e-08
+  fe_energy_relative_tol: 0.001
+  fe_displacement_mesh_tol: 0.01
+  fe_gauge_strain_mesh_tol: 0.02
+  network_relative_sequence_tol: 0.001
+  network_error_over_min_nonzero_noise_max: 0.1
+  validation_BA_change_under_refinement_max: 0.002
+stress_tests:
+  gain_tau_relative_perturbations:
+  - 0.0
+  - 0.05
+  - 0.1
+  - 0.2
+  open_circuit_node_failure_fractions:
+  - 0.0
+  - 0.1
+  - 0.3
+  additional_models:
+  - finite_receiver_impedance
+  - alternative_monotonic_gain_tau_curves
+  - strain_transfer_attenuation
+  - drive_inhomogeneity
+  - edge_conductance_scatter
+evaluation:
+  primary: T2 zero-adjustment P4 minus best P3 layout-macro balanced accuracy
+  practical_effect_delta: 0.02
+  confidence_level: 0.95
+  bootstrap: crossed_layout_and_scenario_family_weights_shared_across_models
+  normalization_fit: training_observations_only
+  threshold_fit: validation_only
+  zero_ports: report_rejection_and_coverage_without_resampling_layouts
+  no_promised_accuracy_or_energy: true

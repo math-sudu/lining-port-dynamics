@@ -1,0 +1,51 @@
+study_version: mechanism-1
+source: inputs/experiment_config.yaml
+family_seed: 20260927
+noise_seed: 20260928
+layout_seeds: [7100, 7101, 7102, 7103, 7104, 7105, 7106, 7107, 7108, 7109, 7110, 7111, 7112, 7113, 7114, 7115]
+family_splits: {train: 64, validation: 32, test: 32}
+layout_domains:
+  source_train: [0, 1, 2, 3, 4, 5]
+  source_validation: [6, 7]
+  target_test: [8, 9, 10, 11, 12, 13, 14, 15]
+generate_all_family_layout_pairs: true
+nodes: 64
+beam_elements: 128
+gauge_length_m: 0.01
+receiver_noise_sigma: 0.01
+network_method: expm
+physical_models:
+  P0: {family: P0, kappa: 0.0, alpha: 0.0}
+  P1_coupled: {family: P1, kappa: 0.3, alpha: 0.0}
+  P2_uncoupled: {family: P2, kappa: 0.0, alpha: 0.0}
+  P2_coupled: {family: P2, kappa: 0.3, alpha: 0.0}
+  P3_uncoupled: {family: P3, kappa: 0.0, alpha: 0.0}
+  P3_coupled: {family: P3, kappa: 0.3, alpha: 0.0}
+  P4_uncoupled: {family: P4, kappa: 0.0, alpha: 0.5}
+  P4_coupled: {family: P4, kappa: 0.3, alpha: 0.5}
+homogeneous_tau_s: 0.05
+readouts:
+  features: [sequence, terminal]
+  ridge_alphas: [0.01, 0.1, 1.0, 10.0, 100.0]
+  protocols: [source_to_unseen_layouts, within_each_layout]
+  calibration: none_for_source_to_unseen_layouts
+  noise: independent_between_acquisitions_shared_across_model_controls
+mechanism:
+  nominal_population: all_test_families_all_layouts
+  nuisance_population: all_test_families_target_test_layouts
+  nuisance_parameters: [pressure, radial_modulus, thickness, harmonic, phase]
+  nuisance_parameterization: Hold each baseline E fixed; p/E and k/E, thickness, harmonic and phase span the independent healthy mechanical directions. Joint scaling of E, k and p leaves the strain field exactly unchanged.
+  nuisance_models: [P0, P1_coupled, P2_coupled, P3_coupled, P4_coupled]
+  signature_comparisons: [noise_scaled_norm, terminal_norm, portwise_gain_matched_shape, healthy_nuisance_projection]
+  finite_difference_steps: {relative: 0.01, harmonic: 0.01, phase: 0.01}
+  finite_difference_step_factors: [1.0, 0.5]
+validation:
+  continuum: {assumption: plane_stress, poisson_ratio: 0.2}
+  representative_cases: [nominal_port_aligned, nominal_between_ports, low_load_thin_ring, high_load_thick_ring]
+  functional_controls: [alternative_saturating_strain_curve, attenuated_strain_transfer]
+interpretation:
+  - This fixed numerical population samples the original parameter domains and sixteen independent random layouts; its count is not a detection-probability or numerical-accuracy target.
+  - The complete family-layout grid permits like-for-like mechanism comparisons and within-layout evaluation. Source-transfer fitting uses only the designated source layouts and family splits.
+  - The 64-node construction is retained so the added controls isolate the original mechanism; a different node density is a different network design.
+  - Every layout is retained, including missing ports and disconnected support sectors. Geometric sector reachability is not itself a proof of mechanical invisibility.
+  - Truth-conditioned signature and nuisance diagnostics are distinct from learned readout performance.

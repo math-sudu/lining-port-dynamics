@@ -1,0 +1,30 @@
+source: inputs/experiment_config.yaml
+execution_version: mvp-0.1
+seed: 20260926
+stage: first_round_numerical_verification
+physical_models:
+  P0: {family: P0, kappa: 0.0, alpha: 0.0}
+  P3_uncoupled: {family: P3, kappa: 0.0, alpha: 0.0}
+  P3_coupled: {family: P3, kappa: 0.3, alpha: 0.0}
+  P4_uncoupled: {family: P4, kappa: 0.0, alpha: 0.5}
+  P4_coupled: {family: P4, kappa: 0.3, alpha: 0.5}
+layout_seeds: [5100, 5101, 5102, 5103]
+family_splits: {train: 60, validation: 20, test: 20}
+layout_assignment: {train: [0, 1], validation: [2], test: [3]}
+network_method: expm
+receiver_noise_sigma: 0.01
+ridge_alphas: [0.01, 0.1, 1.0, 10.0, 100.0]
+permutation_replicates: 19
+bootstrap_replicates: 1000
+digital:
+  locked_physical_source: P3_coupled
+  seed: 20260926
+  epochs: 12
+  configs_per_model: 1
+  training_seeds: 1
+scope_notes:
+  - All choices above precede data generation and are independent of test performance.
+  - Five fixed physical configurations constitute implementation checks, not design optimization.
+  - Digital models are small external-algorithm smoke tests, not the formal M7 benchmark.
+  - Only T2 zero-adjustment is run; T1/T3/T4 and calibrated transfer belong to the next-stage matrix.
+  - A single unseen test layout cannot estimate population-level layout uncertainty.
