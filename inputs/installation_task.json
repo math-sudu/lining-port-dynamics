@@ -1,0 +1,31 @@
+{
+  "installation": "Embedded two-depth ring; four electrically separate ladder modules",
+  "nodes": 64,
+  "layout_seeds": [7100, 7101, 7102, 7103, 7104, 7105, 7106, 7107, 7108, 7109, 7110, 7111, 7112, 7113, 7114, 7115],
+  "inventory_role": "Sixteen capacitor inventories at identical installed positions; each inventory is held fixed during calibration and evaluation",
+  "beam_elements": 128,
+  "depth_m": 0.1,
+  "nominal_mechanics": {
+    "radius": 3.0, "width": 1.0, "thickness": 0.3, "youngs": 30000000000.0,
+    "radial_modulus": 50000000.0, "tangential_ratio": 0.05,
+    "pressure": 200000.0, "harmonic": 0.15, "phase": 0.2,
+    "sector_width": 0.5235987755982988
+  },
+  "operating_parameters": ["pressure", "harmonic", "phase"],
+  "operating_ranges": {"pressure": [100000.0, 300000.0], "harmonic": [0.0, 0.3], "phase": [0.0, 3.141592653589793]},
+  "finite_difference_steps": {"pressure": 1000.0, "harmonic": 0.005, "phase": 0.005},
+  "design_sector_count": 12,
+  "design_reduction": 0.45,
+  "test_reductions": [0.1, 0.2, 0.3, 0.45, 0.6],
+  "calibration_cases": 32,
+  "test_cases": 32,
+  "calibration_seed": 2026101501,
+  "test_seed": 2026101502,
+  "healthy_quantile": 0.95,
+  "sample_noise_sigma_v": 0.000001,
+  "sample_period_s": 0.005,
+  "reset_duration_s": 2.0,
+  "probe_duration_s": 2.0,
+  "scan_switch_s": 0.02,
+  "scan_switch_source": "https://www.campbellsci.eu/am16-32b (maximum relay actuation time; four parallel 16:1 signal banks are the study architecture)"
+}

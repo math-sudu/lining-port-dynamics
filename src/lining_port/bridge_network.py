@@ -74,12 +74,12 @@ def system(strain, layout, geom, circuit=Circuit()):
     return matrix, drive, output
 
 
-def response_basis(strain, layout, geom, circuit=Circuit(), codes=None):
+def response_basis(strain, layout, geom, circuit=Circuit(), codes=None, reset_duration=None):
     """Propagate the exact response to wiring columns, from discharged cells.
 
-The zero-input equilibrium is zero for every strain and wiring. The two-second
-reset therefore leaves this initial state unchanged. Passing a code matrix
-propagates only those physical wirings instead of the full basis.
+Passing a code matrix propagates only those physical wirings. With a reset
+duration, the initial state is the periodic state after that zero-input reset;
+otherwise the cells and receiver filters start discharged.
 """
     matrix, drive, output = system(strain, layout, geom, circuit)
     if codes is not None:
@@ -95,6 +95,14 @@ propagates only those physical wirings instead of the full basis.
     state = np.zeros_like(drive)
     values = np.empty((400, 4, drive.shape[1]))
     probe = np.random.default_rng(4100).choice([-1., 1.], 100)
+    if reset_duration is not None:
+        if reset_duration < 0:
+            raise ValueError("Reset duration must be nonnegative")
+        for step in range(400):
+            state = transition @ state + forcing * probe[step // 4]
+        # End-of-probe = exp(A * cycle) @ previous_end + zero-start response.
+        previous_end = np.linalg.solve(np.eye(len(matrix)) - expm(matrix * (2 + reset_duration)), state)
+        state = expm(matrix * reset_duration) @ previous_end
     for step in range(400):
         values[step] = output @ state
         state = transition @ state + forcing * probe[step // 4]
