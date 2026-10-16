@@ -68,6 +68,29 @@ def make_cases(config):
     return rows
 
 
+def load_coefficients(parameters):
+    """Pressure coefficients of 1, cos(2 theta), sin(2 theta), in Pa."""
+    p, h, phi = parameters.pressure, parameters.harmonic, parameters.phase
+    return p * np.array([1., h * np.cos(2 * phi), h * np.sin(2 * phi)])
+
+
+def strain_load_basis(parameters, geom, n_elements, gauge_length):
+    """Gauge-strain response per Pa for the three load coefficients.
+
+    Three admissible forward loads isolate the basis at the supplied support
+    state. Linearity of the elastic model makes this valid across load amplitude
+    and phase, for both healthy and softened support.
+    """
+    def sample(harmonic, phase):
+        field = solve_ring(replace(parameters, harmonic=harmonic, phase=phase), n_elements)
+        return recover_gauge_strain(field, geom["theta"], geom["z"], gauge_length)
+
+    constant = sample(0., 0.)
+    cosine = 2 * (sample(.5, 0.) - constant)
+    sine = 2 * (sample(.5, np.pi / 4) - constant)
+    return np.column_stack((constant, cosine, sine)) / parameters.pressure
+
+
 def strain_inputs(config, geom, gauge_length, cases):
     nominal = RingParameters(**config["nominal_mechanics"])
 

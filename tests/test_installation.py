@@ -9,7 +9,7 @@ from scipy.sparse.csgraph import connected_components
 from lining_port.bridge_network import Circuit, components, response_basis, system
 from lining_port.fe import RingParameters, solve_ring, recover_gauge_strain
 from lining_port.installation import installed_network
-from lining_port.installation_study import detector, make_cases
+from lining_port.installation_study import detector, load_coefficients, make_cases, strain_load_basis
 
 
 def test_all_installed_cells_reach_their_port_and_change_its_voltage():
@@ -75,6 +75,18 @@ def test_detector_removes_load_modes_and_keeps_target_coordinates():
     delta = targets[:, 0] + nuisance @ [1, 2, 3]
     np.testing.assert_allclose(np.linalg.norm(u.T @ (delta - reference)),
                                np.linalg.norm(delta - q @ (q.T @ delta)), atol=1e-13)
+
+
+def test_load_basis_recovers_independent_healthy_and_softened_forward_loads():
+    _, geom = installed_network(7108)
+    for reduction in (0., .45):
+        parameters = RingParameters(harmonic=0., reduction=reduction, sector_center=.37)
+        basis = strain_load_basis(parameters, geom, 128, .0002)
+        evaluation = replace(parameters, pressure=270000., harmonic=.23, phase=.71)
+        field = solve_ring(evaluation, 128)
+        expected = recover_gauge_strain(field, geom["theta"], geom["z"], .0002)
+        np.testing.assert_allclose(basis @ load_coefficients(evaluation), expected,
+                                   rtol=1e-10, atol=1e-15)
 
 
 def test_dependent_load_sensitivities_do_not_promote_roundoff_to_a_mode():

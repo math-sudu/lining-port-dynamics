@@ -1,6 +1,6 @@
 {
   "resources": {
-    "scope": "Nominal resistive excitation energy and unshielded conductor length inside four modules; common external trunks and receiver/controller power excluded",
+    "scope": "Unshielded conductor length from the installed gauges to the four module-head supply/receiver interfaces at the inner surface, including all inter-module connections, series wires, shared buses, radial feeds and two leads per differential input. External power/data trunks beyond those interfaces and receiver/controller power are outside this boundary.",
     "rc": {
       "adc_channels": 4,
       "record_samples": 1600,
@@ -11,10 +11,14 @@
       "capacitors": 64,
       "leakage_resistors": 64,
       "link_resistors": 88,
-      "signal_route_m": 40.72555019961912,
       "distributed_bus_conductors": 3,
-      "local_conductor_m": 109.40563449365835,
-      "nominal_excitation_energy_j": 0.00256
+      "nominal_excitation_energy_j": 0.00256,
+      "series_route_m": 39.386722862692835,
+      "excitation_route_m": 70.4800842940393,
+      "readout_route_m": 1.338827336926298,
+      "signal_route_m": 40.725550199619136,
+      "local_conductor_m": 111.20563449365844,
+      "inter_module_conductor_m": 0.0
     },
     "scan": {
       "adc_channels": 4,
@@ -30,19 +34,65 @@
       "blanking_ground_switches": 4,
       "individual_returns": 64,
       "distributed_bus_conductors": 1,
-      "signal_route_m": 84.99822368615503,
-      "local_conductor_m": 107.89158511750145,
       "controller": "Clock, reset and powered relay drivers at four accessible module heads",
-      "nominal_excitation_energy_j": 0.00029440000000000005
+      "nominal_excitation_energy_j": 0.00029440000000000005,
+      "series_route_m": 0.0,
+      "excitation_route_m": 23.49336143134646,
+      "readout_route_m": 84.998223686155,
+      "signal_route_m": 84.998223686155,
+      "local_conductor_m": 108.49158511750146,
+      "inter_module_conductor_m": 0.0
     },
     "mechanical_bridge": {
       "adc_channels": 4,
+      "differential_inputs": 4,
+      "midpoint_leads": 8,
       "record_samples": 3200,
       "cycle_s": 4.0,
       "active_gauges": 64,
       "bridges": 4,
       "gauges_per_arm": 4,
-      "nominal_excitation_energy_j": 0.00016
+      "nominal_excitation_energy_j": 0.00016,
+      "series_route_m": 29.874333882308175,
+      "excitation_route_m": 35.78672286269281,
+      "readout_route_m": 3.556194490192343,
+      "signal_route_m": 33.43052837250052,
+      "local_conductor_m": 69.21725123519333,
+      "inter_module_conductor_m": 0.0
+    },
+    "composite4": {
+      "adc_channels": 4,
+      "differential_inputs": 4,
+      "midpoint_leads": 8,
+      "record_samples": 3200,
+      "cycle_s": 4.0,
+      "active_gauges": 64,
+      "bridges": 4,
+      "gauges_per_arm": 4,
+      "nominal_excitation_energy_j": 0.00016,
+      "series_route_m": 29.874333882308175,
+      "excitation_route_m": 35.78672286269281,
+      "readout_route_m": 38.89911184307752,
+      "signal_route_m": 68.7734457253857,
+      "local_conductor_m": 104.56016858807851,
+      "inter_module_conductor_m": 37.12101459798134
+    },
+    "composite2": {
+      "adc_channels": 2,
+      "differential_inputs": 2,
+      "midpoint_leads": 4,
+      "record_samples": 1600,
+      "cycle_s": 4.0,
+      "active_gauges": 64,
+      "bridges": 2,
+      "gauges_per_arm": 8,
+      "nominal_excitation_energy_j": 4e-05,
+      "series_route_m": 91.93539062730915,
+      "excitation_route_m": 17.893361431346413,
+      "readout_route_m": 1.7780972450961707,
+      "signal_route_m": 93.71348787240532,
+      "local_conductor_m": 111.60684930375174,
+      "inter_module_conductor_m": 62.861056745000965
     }
   },
   "detection": [

@@ -1,4 +1,4 @@
-"""Four-ADC scanning and four mechanical bridges for the fixed installation."""
+"""Scanning and physical bridge acquisition on the fixed 64-gauge installation."""
 from __future__ import annotations
 
 import json
@@ -60,20 +60,38 @@ def divider_voltage(strain, circuit):
     return circuit.voltage * (circuit.resistance - r) / (circuit.resistance + r)
 
 
-def mechanical_bridge_voltage(strain, circuit):
-    """Four active arms per module; four series gauges per arm.
+def bridge_netlists():
+    """Zero-based gauge IDs, ordered by bridge, arm R1--R4 and series path."""
+    local = np.array([[np.arange(i, i + 8, 2), np.arange(i + 1, i + 8, 2),
+                       np.arange(i + 9, i + 16, 2), np.arange(i + 8, i + 16, 2)]
+                      for i in range(0, 64, 16)])
+    four = np.array([[np.arange(i, i + 8, 2), np.arange(i + 1, i + 8, 2),
+                      np.arange(i + 32, i + 40, 2), np.arange(i + 33, i + 40, 2)]
+                     for i in range(0, 32, 8)])
+    two = np.array([[np.r_[a[0], a[3]], np.r_[a[1], a[2]],
+                     np.r_[b[1], b[2]], np.r_[b[0], b[3]]]
+                    for a, b in zip(four[::2], four[1::2])])
+    return {"mechanical_bridge": local, "composite4": four, "composite2": two}
 
-    Opposite arms collect inner-layer gauges; the other two collect outer-layer
-    gauges. Each gauge is used once and the output is the differential midpoint.
+
+def bridge_voltage(strain, nodes, circuit):
+    """Exact differential midpoint voltages for series-connected active arms.
+
+    Leading strain dimensions are retained; the last dimension holds 64 gauges.
+    Each netlist supplies its physical channels, including the two-bridge circuit.
     """
-    r = circuit.resistance * (1 + circuit.gauge_factor * np.asarray(strain).reshape(4, 8, 2))
+    r = circuit.resistance * (1 + circuit.gauge_factor * np.asarray(strain))
     if np.any(r <= 0):
         raise ValueError("Gauge resistance must be positive")
-    r1 = r[:, :4, 0].sum(axis=1)
-    r2 = r[:, :4, 1].sum(axis=1)
-    r3 = r[:, 4:, 1].sum(axis=1)
-    r4 = r[:, 4:, 0].sum(axis=1)
-    return 2 * circuit.voltage * (r2 / (r1 + r2) - r4 / (r3 + r4))
+    arms = r[..., nodes].sum(axis=-1)
+    return 2 * circuit.voltage * (
+        arms[..., 1] / (arms[..., 0] + arms[..., 1])
+        - arms[..., 3] / (arms[..., 2] + arms[..., 3]))
+
+
+def mechanical_bridge_voltage(strain, circuit):
+    """The original four local bridges, one per module."""
+    return bridge_voltage(strain, bridge_netlists()["mechanical_bridge"], circuit)
 
 
 def bridge_operator(cycle=4., dt=.005):
@@ -82,34 +100,32 @@ def bridge_operator(cycle=4., dt=.005):
 
 
 def resources(config, geom, circuit):
-    """Routed conductor lengths inside the four modules, excluding common trunks."""
-    radius = config["nominal_mechanics"]["radius"]
-    thickness = config["nominal_mechanics"]["thickness"]
-    depth = config["depth_m"]
-    # Each distributed bus follows the module mid-depth arc and radial stubs.
-    bus = 4 * radius * 7 * np.pi / 16 + 64 * depth
-    angle = (geom["theta"] - geom["module"] * np.pi / 2 + np.pi) % (2 * np.pi) - np.pi
-    scan_returns = np.sum((radius + geom["z"]) * np.abs(angle) + thickness / 2 + geom["z"])
-    links = geom["route_length"].sum() / 2
-    leads = geom["port_lead_length"].sum()
-    return {
-        "scope": "Nominal resistive excitation energy and unshielded conductor length inside four modules; common external trunks and receiver/controller power excluded",
+    """Physical receivers, routed conductors and nominal resistive excitation."""
+    from .acquisition_routing import SCOPE, routed_layouts, route_totals
+
+    result = {
+        "scope": SCOPE,
         "rc": {"adc_channels": 4, "record_samples": 1600, "cycle_s": 4., "reset_s": 2.,
                "active_gauges": 64, "reference_resistors": 64, "capacitors": 64, "leakage_resistors": 64,
-               "link_resistors": 88, "signal_route_m": float(links + leads),
-               "distributed_bus_conductors": 3, "local_conductor_m": float(3 * bus + links + leads),
+               "link_resistors": 88, "distributed_bus_conductors": 3,
                "nominal_excitation_energy_j": 64 * 2 * circuit.voltage**2 / circuit.resistance * 2},
         "scan": {"adc_channels": 4, "record_samples": 2944, "cycle_s": 4., "slots": 16,
                  "slot_s": .25, "switch_s": .02, "retained_samples_per_sensor": 46,
                  "active_gauges": 64, "completion_resistors": 4, "signal_mux_banks_16_to_1": 4, "blanking_ground_switches": 4,
                  "individual_returns": 64, "distributed_bus_conductors": 1,
-                 "signal_route_m": float(scan_returns), "local_conductor_m": float(bus + scan_returns),
                  "controller": "Clock, reset and powered relay drivers at four accessible module heads",
                  "nominal_excitation_energy_j": 4 * 2 * circuit.voltage**2 / circuit.resistance * (4 - 16 * .02)},
-        "mechanical_bridge": {"adc_channels": 4, "record_samples": 3200, "cycle_s": 4.,
-                              "active_gauges": 64, "bridges": 4, "gauges_per_arm": 4,
-                              "nominal_excitation_energy_j": 4 * circuit.voltage**2 / circuit.resistance * 4},
     }
+    for name, nodes in bridge_netlists().items():
+        channels, _, per_arm = nodes.shape
+        result[name] = {"adc_channels": channels, "differential_inputs": channels,
+                        "midpoint_leads": 2 * channels, "record_samples": channels * 800,
+                        "cycle_s": 4., "active_gauges": 64, "bridges": channels,
+                        "gauges_per_arm": per_arm,
+                        "nominal_excitation_energy_j": channels * (2 * circuit.voltage)**2 / (per_arm * circuit.resistance) * 4}
+    for name, layout in routed_layouts(geom).items():
+        result[name].update(route_totals(layout))
+    return result
 
 
 def main():

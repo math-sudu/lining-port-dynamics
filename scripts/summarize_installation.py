@@ -61,8 +61,25 @@ def main():
         rates = [100 * selected[.1]["false_positive_rate"]] + [100 * selected[d]["true_positive_rate"] for d in (.1, .2, .45)]
         lines.append(LABELS[mode] + " & " + " & ".join(f"{value:.1f}" for value in rates) + r"\\")
     lines.extend([r"\bottomrule", r"\end{tabular}"])
+    modes = ("rc", "scan", "mechanical_bridge", "composite4", "composite2")
+    resources = acquisition["resources"]
+    resource_rows = [
+        ("ADC channels", "adc_channels", ",d", 1),
+        ("Voltage samples", "record_samples", ",d", 1),
+        ("Series/network wires (m)", "series_route_m", ".2f", 1),
+        ("Supply/ground wires (m)", "excitation_route_m", ".2f", 1),
+        ("Receiver/scan leads (m)", "readout_route_m", ".2f", 1),
+        ("Total conductor (m)", "local_conductor_m", ".2f", 1),
+        ("Excitation energy (mJ)", "nominal_excitation_energy_j", ".3f", 1000),
+    ]
+    resource_lines = [r"\begin{tabular}{lrrrrr}", r"\toprule",
+                      r"Resource & RC & Scan & \shortstack{Local\\bridge} & \shortstack{Composite\\four} & \shortstack{Composite\\two}\\",
+                      r"\midrule"]
+    for label, key, fmt, scale in resource_rows:
+        resource_lines.append(label + " & " + " & ".join(format(resources[m][key] * scale, fmt) for m in modes) + r"\\")
+    resource_lines.extend([r"\bottomrule", r"\end{tabular}"])
     if args.write_paper:
-        (ROOT / "paper/tables/detection.tex").write_text("\n".join(lines) + "\n")
+        (ROOT / "paper/tables/acquisition_resources.tex").write_text("\n".join(resource_lines) + "\n")
     print(f"Raw paired ratio: {raw_ratio:.6f}")
     print(json.dumps({"comparisons": summary["comparisons"], "resources": acquisition["resources"]}, indent=2))
     print("\n".join(lines))

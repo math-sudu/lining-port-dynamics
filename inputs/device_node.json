@@ -8,6 +8,8 @@
     "width_m": 0.00001,
     "silicon_thickness_m": 0.0000002,
     "polyimide_substrate_thickness_m": 0.0000125,
+    "polyimide_encapsulation_thickness_m_approx": 0.0000015,
+    "contact_material": "Cr/Au",
     "assembled_film_thickness_m_approx": 0.000015,
     "longitudinal_gauge_factor_approx": 50,
     "reported_tensile_characterization_range": [0, 0.01]
