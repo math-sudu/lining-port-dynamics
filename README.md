@@ -90,10 +90,27 @@ Figure and table sources are maintained alongside the manuscript and read these
 formal result arrays directly. The scientific calculations above generate their
 numerical inputs.
 
-## Retained symmetric construction
+## Tunnel worked example and retained figures
 
-The exact paired-depth construction and original comparison results are retained
-in the public repository history at `3373ac3`. The general manuscript includes
-its exact arm-balance and curvature formulas as
-a special case. Historical RC, scanning and symmetric detection statistics are
-not results of the random passive networks.
+The manuscript develops the tunnel as a worked example before evaluating fixed
+irregular installations and the asymmetric frame. Its symmetric strain fields,
+actual routes and signed bridge responses use the established data in
+[release 3373ac3](https://github.com/math-sudu/lining-port-dynamics/tree/3373ac3):
+
+- `results/device-network-01/strain_fields.npz` and `figures/F2-fields/`: the
+  registered lining fields, paired-depth stations and beam/continuum profiles.
+- `results/composite-bridges/responses.npz` and `summary.json`: exact symmetric
+  outputs, independent load cases and weak-excitation strain fields.
+- `results/composite-bridges/routing.json`: gauge-to-module-head conductor paths.
+- `src/lining_port/composite_bridge_study.py`: the corresponding producer,
+  using the fixed-installation strains and cases in that same release.
+
+The main paper retains the approved tunnel context, field, wiring and response
+figures. Device photographs and layered strain sampling are retained with the
+current passive interface. The dimensional synthesis architecture uses the
+general study's response matrices and coefficients. The two installations have
+distinct physical roles: repeated arm responses give exact symmetric balance;
+shunts and ballast handle the fixed irregular positions. The symmetric figure's
+electronics-only thresholds retain their stated noise model; the general
+hardware study includes thermal noise, setting errors and drift. Historical RC
+records remain associated with their original circuit.
