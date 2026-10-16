@@ -1,0 +1,16 @@
+{
+  "purpose": "Commissioning, component uncertainty, wiring and in-service drift",
+  "channels": [2, 4],
+  "max_shunt_ohm": 10000000.0,
+  "gauge_nominal_uniform_tolerance": 0.01,
+  "gauge_factor_uniform_tolerance": 0.01,
+  "calibration_strain_noise_rms": [0.0, 0.00000005, 0.0000005],
+  "component_uniform_tolerance": [0.0, 0.0001, 0.001],
+  "drift_rms": [0.000001, 0.00001],
+  "hardware_draws": 16,
+  "random_seed": 2026101603,
+  "wire_resistance_ohm_per_m": 0.0842,
+  "differential_input_resistance_ohm": 1000000000.0,
+  "average_time_s": 4.0,
+  "assumptions": "The tolerance and calibration-noise levels are numerical scenarios, not measured properties of the cited silicon gauges. Nominal resistances are measured during commissioning. Input loading is purely differential. Wire resistance is fixed during a reading. Component drift is independent and occurs after the single stored zero reference."
+}

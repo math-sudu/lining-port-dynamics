@@ -1,0 +1,14 @@
+{
+  "purpose": "Fixed-position passive bridge synthesis and channel tradeoff",
+  "source_installation": "inputs/installation_task.json",
+  "source_strains": "results/random-bridges/healthy_exchange.npz",
+  "source_cases": "results/fixed-installation/cases.json",
+  "device_source": "inputs/device_node.json",
+  "channels": [2, 4, 8],
+  "grouping": "Sort the installed gauges by angle, then divide into equally sized contiguous groups; no relocation",
+  "design_sector_count": 12,
+  "design_support_reduction": 0.45,
+  "average_time_s": 4.0,
+  "temperature_k": 300.0,
+  "noise_model": "Bridge Johnson noise and the existing independent post-filter sample noise; ideal wires, excitation and amplifier input impedance"
+}

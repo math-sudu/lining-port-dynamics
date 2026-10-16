@@ -1,0 +1,20 @@
+{
+  "purpose": "Cross-structure validation of fixed-position passive bridges",
+  "layout_seeds": [8200, 8201, 8202, 8203, 8204, 8205, 8206, 8207],
+  "gauges_per_member": 12,
+  "healthy_ranks": [2, 6],
+  "channels": [2, 4],
+  "calibration_cases": 32,
+  "calibration_seed": 2026101601,
+  "test_seed": 2026101602,
+  "confirmation_seed": 2026101604,
+  "tests_per_member": 8,
+  "design_centers": [0.2, 0.5, 0.8],
+  "patch_fraction": 0.18,
+  "design_modulus_reduction": 0.35,
+  "test_modulus_reduction": 0.1,
+  "resistance_ohm": 100000.0,
+  "gauge_factor": 50.0,
+  "max_shunt_ohm": 10000000.0,
+  "average_time_s": 4.0
+}

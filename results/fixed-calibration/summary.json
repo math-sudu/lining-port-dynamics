@@ -1,7 +1,0 @@
-{
-  "pairs": 512,
-  "median_frozen_ratio": 1.830157561816058,
-  "improved_pairs": 489,
-  "median_drift_to_target": 0.07657061963635937,
-  "drift_exceeds_target_pairs": 9
-}
