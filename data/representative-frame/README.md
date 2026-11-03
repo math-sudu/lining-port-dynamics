@@ -51,7 +51,7 @@ The center is the mean of the endpoint fractions and the length fraction is
 their difference. Region 13 (zero-based) is `[4, 0.41, 0.59, 0.35]`, the
 middle right-beam patch centered at 0.50 with length fraction 0.18.
 
-All JSON indices are zero-based. Manuscript tables number channels from one. Arm signs are
+All JSON indices are zero-based. Arm signs are
 `(-1, +1, +1, -1)`. Source voltage is the rail-to-rail span; H and L are its
 positive and negative halves. Receiver output is A minus B. Node names other
 than H/L are local to each bridge.
@@ -68,7 +68,7 @@ design inputs are extracted by `scripts/export_representative_frame.py` from
 `results/passive-network/constrained_netlists.json`, `constrained.npz`,
 `results/passive-robustness/hardware.npz`, and
 `results/frame-bridges/synthesis.npz`. In that source export, `baseline` denotes
-the manuscript's joint voltage design. The selected installation has
+the joint voltage design. The selected installation has
 `layout_seed=8206`. No component-setting errors or sampled noise are added in
-this design reconstruction; independent-evaluation statistics in the manuscript's controlled
-comparisons use their stated load sets and component draws.
+this design reconstruction. Independent-evaluation statistics use the evaluation
+load sets and component draws stored in the corresponding result arrays.

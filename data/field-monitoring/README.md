@@ -87,7 +87,8 @@ The accompanying `Taishan_Circuit.json` provides full-precision contrast
 coefficients, gauge order, arm assignments, shunts, ballasts, conductor and
 receiver resistances, and the zero-strain component netlist. Its
 `arm_zero_based` entries 0–3 correspond to arms 1–4 above.
-The arm signs follow the manuscript's top/bottom and left/right convention.
+For arms 1–4, the strain contribution signs are `(-1, +1, +1, -1)`
+when the receiver measures left-midpoint minus right-midpoint voltage.
 
 All voltages are calculated from the complete loaded circuit at absolute
 strain equivalents. Day-1 subtraction gives the chronological readouts.

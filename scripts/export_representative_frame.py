@@ -1,4 +1,4 @@
-"""Extract the manuscript's frame circuit and original design inputs."""
+"""Extract the representative frame circuit and original design inputs."""
 import json
 from pathlib import Path
 

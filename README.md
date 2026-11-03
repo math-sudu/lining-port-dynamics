@@ -25,7 +25,7 @@ python -m venv .venv
 The last command regenerates the ring load cases. Running
 `scripts/reproduce.py` without that option regenerates the retained studies
 in dependency order and overwrites their results. Reading the saved results
-or rebuilding the manuscript does not require this computation.
+does not require this computation.
 
 1. `installation_study.make_cases` creates
    `results/fixed-installation/cases.json` from the installation settings.
@@ -52,12 +52,12 @@ or rebuilding the manuscript does not require this computation.
 
 Configuration files, input generators and their local dependencies are included.
 The large generated arrays remain in the working project and can be regenerated
-from these inputs. The initialization studies remain dependencies of the
-reported networks; they are not additional manuscript performance comparisons.
+from these inputs. The initialization studies supply the starting circuits and
+arrays needed by the network calculations.
 
 ## Network selection and stored quantities
 
-The manuscript compares the joint voltage design (`baseline` in the
+The network comparison evaluates the joint voltage design (`baseline` in the
 constrained study, `scaled` in the acquisition study) with
 `constrained`. Both maximize the geometric regional mean of summed
 channel voltage increments relative to the stored-reference healthy background
@@ -202,8 +202,8 @@ reactions. The two computed strain profiles
 augment its original three-mode reference. Model parameters are retained,
 and no field stiffness or steel-force fit is performed. The same original
 design increments select unit directions before the two pressure inputs are
-combined with 10-percent support loss at twelve sector centers. The manuscript
-compares the RMS norms of the four captured strain outputs over these 24 cases.
+combined with 10-percent support loss at twelve sector centers. The comparison
+uses the RMS norms of the four captured strain outputs over these 24 cases.
 The measurements serve as spatial load inputs, not independent validation
 of predicted field stress. `pressure_reference.json` and `pressure_reference.npz` contain settings,
 reference bases, selected directions and evaluation increments.

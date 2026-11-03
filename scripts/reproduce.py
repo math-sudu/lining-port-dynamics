@@ -1,4 +1,4 @@
-"""Generate the load cases and run the passive-bridge manuscript studies."""
+"""Generate the load cases and run the passive-bridge studies."""
 
 import argparse
 import json
