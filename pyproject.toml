@@ -7,7 +7,7 @@ name = "lining-port-dynamics"
 version = "0.2.0"
 description = "Passive bridge synthesis at fixed strain sensor locations"
 requires-python = ">=3.11,<3.12"
-dependencies = ["numpy", "scipy", "openseespy", "scikit-learn", "PyYAML", "threadpoolctl"]
+dependencies = ["numpy", "scipy", "openseespy", "threadpoolctl"]
 
 [project.optional-dependencies]
 test = ["pytest"]

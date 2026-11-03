@@ -1,0 +1,11 @@
+{
+  "purpose": "Recorded healthy reference and finite-time operational voltage",
+  "source_condition": "calibration_0p05ue",
+  "component_uniform_tolerance": 0.0001,
+  "reference_calibration_index": 0,
+  "reference_average_time_s": 4.0,
+  "independent_sample_sigma_v": 0.000001,
+  "sample_period_s": 0.005,
+  "temperature_k": 300.0,
+  "random_seed": 2026101605
+}

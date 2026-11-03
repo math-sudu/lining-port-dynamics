@@ -1,0 +1,151 @@
+{
+  "steel_modulus_Pa": 200000000000.0,
+  "interpretation": "Offline circuit replay of nominal elastic strain equivalents; no observed resistor-bridge voltage or damage label",
+  "taishan_1690": {
+    "station_order": [
+      "B2",
+      "K",
+      "B1",
+      "A1",
+      "A2",
+      "A3",
+      "A4"
+    ],
+    "reference_day": 1.0,
+    "calibration_days": [
+      1.0,
+      2.0,
+      3.0,
+      4.0,
+      5.0,
+      6.0,
+      7.0,
+      8.0,
+      9.0,
+      10.0,
+      11.0,
+      13.0,
+      17.0,
+      20.0,
+      24.0,
+      29.0,
+      34.0,
+      40.0,
+      44.0,
+      48.0
+    ],
+    "evaluation_days": [
+      54.0,
+      61.0,
+      68.0,
+      83.0,
+      91.0,
+      114.0,
+      133.0,
+      147.0,
+      163.0
+    ],
+    "reference_change_mode_energy_fraction": 0.9523333459525799,
+    "contrast_weights": [
+      -0.5710583715534547,
+      0.256384250207528,
+      0.17249264553302132,
+      1.0,
+      -0.027126589776500825,
+      0.3851604138559644,
+      0.1368822062869809
+    ],
+    "reference_contrast_basis": [
+      [
+        -7.924258689770189e-05,
+        -0.4796441560160663
+      ],
+      [
+        6.34947484447084e-05,
+        -0.09583391735194202
+      ],
+      [
+        2.0475630059432195e-05,
+        0.1834484761771583
+      ],
+      [
+        -9.731560113602164e-05,
+        -0.3220099842313222
+      ],
+      [
+        4.382210073108294e-05,
+        -0.5531904861126622
+      ],
+      [
+        6.027044983367144e-05,
+        0.2474441087384535
+      ],
+      [
+        7.471725113438005e-05,
+        -0.5061277206924233
+      ]
+    ],
+    "paired_membrane_dimension": 7,
+    "total_reference_dimension": 9,
+    "target_available_fraction": 0.6291621455294801,
+    "contrast_weight_norm": 1.2607201889837938,
+    "unit_direction_gain_V_per_strain": 0.3587396219280425,
+    "calibration_local_rms_microstrain": 67.47497768604738,
+    "calibration_filtered_rms_microstrain": 20.7181168018596,
+    "evaluation_local_rms_microstrain": 100.21283468028959,
+    "evaluation_filtered_rms_microstrain": 15.146802771820386,
+    "evaluation_local_mean_microstrain": -100.0188392298233,
+    "evaluation_filtered_mean_microstrain": -13.067810920910677,
+    "evaluation_rms_reduction_fraction": 0.8488536641025728,
+    "evaluation_recorded_replay_rms_microvolt": 3.0462802423664685,
+    "evaluation_exact_minus_linear_max_microvolt": 0.0024087268753635164,
+    "synthetic_target_contrast_microstrain": 10.0,
+    "synthetic_target_linear_microvolt": 2.012081836732432,
+    "synthetic_target_exact_range_microvolt": [
+      2.01288731727597,
+      2.0129128721719076
+    ],
+    "synthetic_membrane_offset_microstrain": 50.0,
+    "synthetic_membrane_max_leakage_microvolt": 0.0021271145046810164,
+    "peak_gauge_power_mW": 0.14306328275762759,
+    "peak_source_power_mW": 1.420793920502631,
+    "reference_choice_comparison": [
+      {
+        "include_initial_pattern": false,
+        "reference_contrast_rank": 1,
+        "contrast_weights": [
+          -0.17231792705933363,
+          -0.03442948647019271,
+          0.06590606961545593,
+          1.0,
+          -0.19874032997221802,
+          0.08889726966552762,
+          -0.18183246592930946
+        ],
+        "target_available_fraction": 0.8963095700553436,
+        "contrast_weight_norm": 1.05626036397953,
+        "calibration_filtered_rms_microstrain": 8.644514143584045,
+        "evaluation_filtered_rms_microstrain": 19.428111454433843,
+        "evaluation_filtered_mean_microstrain": -18.902606584768535
+      },
+      {
+        "include_initial_pattern": true,
+        "reference_contrast_rank": 2,
+        "contrast_weights": [
+          -0.5710583715534547,
+          0.256384250207528,
+          0.17249264553302132,
+          1.0,
+          -0.027126589776500825,
+          0.3851604138559644,
+          0.1368822062869809
+        ],
+        "target_available_fraction": 0.6291621455294801,
+        "contrast_weight_norm": 1.2607201889837938,
+        "calibration_filtered_rms_microstrain": 20.7181168018596,
+        "evaluation_filtered_rms_microstrain": 15.146802771820386,
+        "evaluation_filtered_mean_microstrain": -13.067810920910677
+      }
+    ]
+  }
+}

@@ -35,13 +35,15 @@ class BridgeHardware:
         ballast = circuit.resistance * np.array([
             bridge.arm_units - np.sum(ratio[(bridge.arm == j) & active] * root[(bridge.arm == j) & active])
             for j in range(4)]) - arm_lead
-        if np.any(ballast < 0):
+        rounding = 8 * np.finfo(float).eps * circuit.resistance * bridge.arm_units
+        if np.any(ballast < -rounding):
             raise ValueError("The prescribed arm resistance cannot accommodate its physical lead")
+        ballast[abs(ballast) <= rounding] = 0.
         gauge = circuit.resistance * (ratio if actual_nominal_ratio is None else np.asarray(actual_nominal_ratio))
         return cls(bridge, circuit, gauge, shunt, ballast, arm_lead, supply_lead, sense_lead, input_resistance)
 
-    def arm_resistance(self, effective_strain, shunt_error=0., ballast_error=0.,
-                       gauge_drift=0., shunt_drift=0., ballast_drift=0.):
+    def _components(self, effective_strain, shunt_error=0., ballast_error=0.,
+                    gauge_drift=0., shunt_drift=0., ballast_drift=0.):
         x = self.circuit.gauge_factor * np.asarray(effective_strain)[..., self.bridge.gauge_indices]
         gauge = self.gauge_nominal * (1 + x) * (1 + np.asarray(gauge_drift))
         shunt = self.shunt * (1 + np.asarray(shunt_error)) * (1 + np.asarray(shunt_drift))
@@ -52,10 +54,13 @@ class BridgeHardware:
         ballast = self.ballast * (1 + np.asarray(ballast_error)) * (1 + np.asarray(ballast_drift))
         if np.any(ballast < 0):
             raise ValueError("Physical ballast must remain nonnegative")
+        return gauge, shunt, cell, ballast
+
+    def arm_resistance(self, effective_strain, **errors):
+        _, _, cell, ballast = self._components(effective_strain, **errors)
         return np.stack([cell[..., self.bridge.arm == j].sum(axis=-1) for j in range(4)], axis=-1) + ballast + self.arm_lead
 
-    def voltage(self, effective_strain, **errors):
-        r = self.arm_resistance(effective_strain, **errors)
+    def _unit_arms(self, r):
         g = 1 / r
         receiver = self.input_resistance + 2 * self.sense_lead
         load_g = 1 / receiver
@@ -66,9 +71,112 @@ class BridgeHardware:
         # Unit-voltage rails. The network is linear in the excitation voltage.
         mids = np.linalg.solve(matrix, np.stack((g[..., 0], g[..., 2]), axis=-1)[..., None])[..., 0]
         input_g = (1 - mids[..., 0]) * g[..., 0] + (1 - mids[..., 1]) * g[..., 2]
+        return mids, input_g, matrix
+
+    def _solve_arms(self, r):
+        mids, input_g, _ = self._unit_arms(r)
         excitation = 2 * self.circuit.voltage / (1 + 2 * self.supply_lead * input_g)
+        return excitation[..., None] * mids, excitation, excitation * input_g
+
+    def voltage(self, effective_strain, **errors):
+        mids, _, _ = self._solve_arms(self.arm_resistance(effective_strain, **errors))
+        receiver = self.input_resistance + 2 * self.sense_lead
         sense_ratio = 1. if np.isinf(self.input_resistance) else self.input_resistance / receiver
-        return excitation * (mids[..., 0] - mids[..., 1]) * sense_ratio
+        return (mids[..., 0] - mids[..., 1]) * sense_ratio
+
+    def nominal_linear_gain(self):
+        """Gain multiplying the signed attenuation at nominal arm balance."""
+        m, r0 = self.bridge.arm_units, self.circuit.resistance
+        rail = 2 * self.circuit.voltage * m * r0 / (m * r0 + 2 * self.supply_lead)
+        loading = 1 / (1 + (m * r0 + 2 * self.sense_lead) / self.input_resistance)
+        return rail * self.circuit.gauge_factor / (4 * m) * loading
+
+    def voltage_and_gradient(self, effective_strain, attenuation=None):
+        """Design voltage and coefficient gradient with compensated nominal arms.
+
+        Ballast is reset as coefficients change, retaining the arm scale and
+        known leads. Differentiate the same loaded nodal system as voltage();
+        fabrication errors and post-setting drift belong to evaluation.
+        """
+        bridge = self.bridge
+        c = bridge.attenuation if attenuation is None else np.asarray(attenuation)
+        r = bridge.arm_resistance(effective_strain, self.circuit, c)
+        mids, input_g, matrix = self._unit_arms(r)
+        g = 1 / r
+        rhs = np.zeros(r.shape[:-1] + (2, 4))
+        rhs[..., 0, 0] = -(1 - mids[..., 0]) * g[..., 0]**2
+        rhs[..., 0, 1] = mids[..., 0] * g[..., 1]**2
+        rhs[..., 1, 2] = -(1 - mids[..., 1]) * g[..., 2]**2
+        rhs[..., 1, 3] = mids[..., 1] * g[..., 3]**2
+        d_mid = np.linalg.solve(matrix, rhs)
+        d_input = -g[..., 0, None] * d_mid[..., 0, :] - g[..., 2, None] * d_mid[..., 1, :]
+        d_input[..., 0] += rhs[..., 0, 0]
+        d_input[..., 2] += rhs[..., 1, 2]
+        denominator = 1 + 2 * self.supply_lead * input_g
+        excitation = 2 * self.circuit.voltage / denominator
+        differential = mids[..., 0] - mids[..., 1]
+        d_voltage = excitation[..., None] * (d_mid[..., 0, :] - d_mid[..., 1, :]
+            - differential[..., None] * (2 * self.supply_lead / denominator)[..., None] * d_input)
+        sense_ratio = (1. if np.isinf(self.input_resistance) else
+                       self.input_resistance / (self.input_resistance + 2 * self.sense_lead))
+        x = self.circuit.gauge_factor * np.asarray(effective_strain)[..., bridge.gauge_indices]
+        root = np.sqrt(c / bridge.resistance_ratio)
+        cell_denominator = 1 + (1 - root) * x
+        d_arm = self.circuit.resistance * (x / cell_denominator
+            + .5 * root * x**2 / cell_denominator**2)
+        return (excitation * differential * sense_ratio,
+                d_voltage[..., bridge.arm] * d_arm * sense_ratio)
+
+    def operating_point(self, effective_strain, **errors):
+        """Receiver potentials and component dissipation at the actual source rails."""
+        gauge, shunt, cell, ballast = self._components(effective_strain, **errors)
+        arms = np.stack([cell[..., self.bridge.arm == j].sum(axis=-1)
+                         for j in range(4)], axis=-1) + ballast + self.arm_lead
+        mids, excitation, supply_current = self._solve_arms(arms)
+        drops = np.stack((excitation - mids[..., 0], mids[..., 0],
+                          excitation - mids[..., 1], mids[..., 1]), axis=-1)
+        currents = drops / arms
+        cell_voltage = currents[..., self.bridge.arm] * cell
+        sense_current = (mids[..., 0] - mids[..., 1]) / (self.input_resistance + 2 * self.sense_lead)
+        receiver_nodes = mids + np.stack((-sense_current, sense_current), axis=-1) * self.sense_lead
+        receiver_nodes += (supply_current * self.supply_lead - self.circuit.voltage)[..., None]
+        voltage = receiver_nodes[..., 0] - receiver_nodes[..., 1]
+        return {
+            "voltage_v": voltage,
+            "receiver_nodes_v": receiver_nodes,
+            "source_power_w": 2 * self.circuit.voltage * supply_current,
+            "gauge_power_w": cell_voltage**2 / gauge,
+            "shunt_power_w": cell_voltage**2 / shunt,
+            "ballast_power_w": currents**2 * ballast,
+            "arm_wire_power_w": currents**2 * self.arm_lead,
+            "supply_wire_power_w": 2 * supply_current**2 * self.supply_lead,
+            "sense_wire_power_w": 2 * sense_current**2 * self.sense_lead,
+            "receiver_power_w": voltage**2 / self.input_resistance,
+        }
+
+    def output_resistance(self, effective_strain, **errors):
+        """Driving-point resistance at the receiver, with the source shorted.
+
+        All physical resistors, including the receiver input, share the stated
+        temperature when this resistance is used for Johnson noise.
+        """
+        r = self.arm_resistance(effective_strain, **errors)
+        if self.supply_lead == 0:
+            resistance = r[..., 0] * r[..., 1] / (r[..., 0] + r[..., 1])
+            resistance += r[..., 2] * r[..., 3] / (r[..., 2] + r[..., 3])
+        else:
+            g = 1 / r
+            matrix = np.zeros(r.shape[:-1] + (3, 3))
+            matrix[..., 0, 0] = g[..., 0] + g[..., 2] + 1 / (2 * self.supply_lead)
+            matrix[..., 1, 1] = g[..., 0] + g[..., 1]
+            matrix[..., 2, 2] = g[..., 2] + g[..., 3]
+            matrix[..., 0, 1] = matrix[..., 1, 0] = -g[..., 0]
+            matrix[..., 0, 2] = matrix[..., 2, 0] = -g[..., 2]
+            drive = np.broadcast_to([0., 1., -1.], r.shape[:-1] + (3,))
+            potential = np.linalg.solve(matrix, drive[..., None])[..., 0]
+            resistance = potential[..., 1] - potential[..., 2]
+        resistance += 2 * self.sense_lead
+        return resistance / (1 + resistance / self.input_resistance)
 
     def netlist(self, effective_strain, shunt_error=None, ballast_error=None):
         """Export explicit gauge, shunt, ballast, arm, power and sense leads."""

@@ -3,4 +3,7 @@ __pycache__/
 *.py[cod]
 .pytest_cache/
 *.egg-info/
-/results/
+/results/*
+!/results/fixed-installation/
+/results/fixed-installation/*
+!/results/fixed-installation/cases.json

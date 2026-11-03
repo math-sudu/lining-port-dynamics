@@ -3,7 +3,8 @@
 import argparse
 import json
 from pathlib import Path
-import runpy
+import subprocess
+import sys
 
 from lining_port.installation_study import make_cases
 
@@ -19,10 +20,13 @@ def main():
     output.write_text(json.dumps(cases, indent=2) + "\n", encoding="utf-8")
     print(f"Generated {len(cases)} ring load cases at {output}", flush=True)
     if not args.prepare_only:
-        for name in ("random_bridge_study", "passive_bridge_study", "frame_bridge_study",
-                     "passive_robustness_study"):
+        studies = ["field_bridge_study", "random_bridge_study", "passive_bridge_study", "frame_bridge_study",
+                   "passive_robustness_study", "passive_acquisition_study", "passive_design_study",
+                   "passive_observables_study", "fixed_wiring_study",
+                   "acquisition_architecture", "field_pressure_study"]
+        for name in studies:
             print(f"Running {name}", flush=True)
-            runpy.run_module(f"lining_port.{name}", run_name="__main__")
+            subprocess.run([sys.executable, "-m", f"lining_port.{name}"], check=True)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,93 @@
+{
+  "pressure_sections": [
+    75,
+    170
+  ],
+  "station_order": [
+    "N",
+    "NE",
+    "E",
+    "SE",
+    "S",
+    "SW",
+    "W",
+    "NW"
+  ],
+  "pressure_MPa": [
+    [
+      0.11,
+      0.14,
+      0.18,
+      0.17,
+      0.21,
+      0.18,
+      0.13,
+      0.12
+    ],
+    [
+      0.2,
+      0.22,
+      0.18,
+      0.26,
+      0.27,
+      0.26,
+      0.16,
+      0.19
+    ]
+  ],
+  "gauge_layout_seed": 7100,
+  "model_source": "inputs/installation_task.json nominal_mechanics; no field-parameter fit",
+  "reference": "Uniform, cosine-two and sine-two pressure responses, augmented with responses to the two measured spatial profiles. Periodic linear interpolation, all eight readings retained.",
+  "direction_design": "One unit row per contiguous group; leading projected target singular vector, using the existing 12-region, 32-load, 45-percent support-loss design increments.",
+  "evaluation": "Calculated increments under each measured profile and 10-percent local support loss in each of the 12 existing sectors; field pressures are load inputs, not independent stress validation.",
+  "results": [
+    {
+      "reference": "analytic_load_family",
+      "rank": 3,
+      "global_available_fraction": 0.7928506629764733,
+      "channel_capture_fraction_of_total": 0.26548889517947455,
+      "channel_capture_fraction_of_available": 0.33485359548391086,
+      "target_norm_rms_microstrain": 0.8890817599461418,
+      "regional_target_norm_rms_microstrain": [
+        0.2733716775127729,
+        0.07249793464219986,
+        0.41380801965834285,
+        0.563359652552249,
+        0.6424937348832965,
+        1.01140648079974,
+        0.3522092766774246,
+        0.3492112325309091,
+        1.5017868346840269,
+        1.764459139165012,
+        1.3258874011533914,
+        0.3295436710883332
+      ],
+      "healthy_profile_readout_norm_microstrain": [
+        13.280835759328808,
+        18.99608024088425
+      ]
+    },
+    {
+      "reference": "measured_pressure_enrichment",
+      "rank": 5,
+      "global_available_fraction": 0.4415933660792515,
+      "channel_capture_fraction_of_total": 0.06757320761360096,
+      "channel_capture_fraction_of_available": 0.1530213377378359,
+      "target_norm_rms_microstrain": 0.4485447603195069,
+      "regional_target_norm_rms_microstrain": [
+        0.1689515198751193,
+        0.1183257703764355,
+        0.3140739706488533,
+        0.3175921714191016,
+        0.4787950096093358,
+        0.4796106843169176,
+        0.08990855100366683,
+        0.3936920043537155,
+        0.9924282460818039,
+        0.5953680900592456,
+        0.3647287062750743,
+        0.27839530652584643
+      ]
+    }
+  ]
+}

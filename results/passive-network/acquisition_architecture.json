@@ -1,0 +1,272 @@
+{
+  "structure": "frame",
+  "installation_seed": 8206,
+  "receivers": 4,
+  "nominal_source_power_limit_uW": 39.99987560908674,
+  "single_gauge_power_limit_uW": 1.2000666421360708,
+  "digital_excited_source_power_uW": 19.201066274177133,
+  "digital_excitation_range_V": [
+    0.6894679131704151,
+    0.6960102504603999
+  ],
+  "average_time_s": 4.0,
+  "sample_period_s": 0.005,
+  "samples_per_receiver_per_average": 800,
+  "same_direction_signal_rms_microstrain": 3.052797458673324,
+  "passive_unit_direction_gains": [
+    19.72805636403064,
+    16.407891734968043,
+    23.559812580870666,
+    23.83078128429691
+  ],
+  "models": [
+    {
+      "architecture": "passive",
+      "channel_noise_rms_microstrain": [
+        0.003085852771741745,
+        0.0037179275630189797,
+        0.0024950877043426745,
+        0.0024633561632091995
+      ],
+      "noise_norm_rms_microstrain": 0.005969845804700923,
+      "design_signal_to_white_noise_energy": 261498.83310580725
+    },
+    {
+      "architecture": "multiplexed_uniform",
+      "channel_noise_rms_microstrain": [
+        0.024170224232916978,
+        0.024090964065453267,
+        0.02412680705007334,
+        0.024182029265206136
+      ],
+      "noise_norm_rms_microstrain": 0.04828506649976991,
+      "design_signal_to_white_noise_energy": 3997.332874330332
+    },
+    {
+      "architecture": "multiplexed_target_allocation",
+      "channel_noise_rms_microstrain": [
+        0.02020964816728676,
+        0.017042981528285556,
+        0.017900003018518105,
+        0.018017088994356348
+      ],
+      "noise_norm_rms_microstrain": 0.036659496754763474,
+      "design_signal_to_white_noise_energy": 6934.625068946427
+    }
+  ],
+  "schedules": [
+    {
+      "gauge_indices": [
+        9,
+        7,
+        6,
+        15,
+        13,
+        23,
+        24,
+        26,
+        29,
+        40,
+        47,
+        43,
+        58,
+        48,
+        50
+      ],
+      "uniform_samples": [
+        54,
+        54,
+        54,
+        54,
+        54,
+        53,
+        53,
+        53,
+        53,
+        53,
+        53,
+        53,
+        53,
+        53,
+        53
+      ],
+      "target_samples": [
+        35,
+        84,
+        47,
+        0,
+        83,
+        76,
+        84,
+        0,
+        78,
+        0,
+        84,
+        75,
+        84,
+        0,
+        70
+      ]
+    },
+    {
+      "gauge_indices": [
+        1,
+        5,
+        2,
+        12,
+        17,
+        14,
+        28,
+        34,
+        31,
+        44,
+        39,
+        46,
+        52,
+        53,
+        57
+      ],
+      "uniform_samples": [
+        54,
+        54,
+        54,
+        54,
+        54,
+        53,
+        53,
+        53,
+        53,
+        53,
+        53,
+        53,
+        53,
+        53,
+        53
+      ],
+      "target_samples": [
+        11,
+        118,
+        117,
+        118,
+        9,
+        118,
+        115,
+        0,
+        118,
+        4,
+        0,
+        0,
+        32,
+        40,
+        0
+      ]
+    },
+    {
+      "gauge_indices": [
+        8,
+        4,
+        3,
+        18,
+        21,
+        16,
+        27,
+        30,
+        32,
+        37,
+        38,
+        45,
+        54,
+        49,
+        55
+      ],
+      "uniform_samples": [
+        54,
+        54,
+        54,
+        54,
+        54,
+        53,
+        53,
+        53,
+        53,
+        53,
+        53,
+        53,
+        53,
+        53,
+        53
+      ],
+      "target_samples": [
+        98,
+        1,
+        97,
+        97,
+        100,
+        0,
+        1,
+        100,
+        97,
+        6,
+        2,
+        3,
+        100,
+        98,
+        0
+      ]
+    },
+    {
+      "gauge_indices": [
+        11,
+        0,
+        10,
+        19,
+        22,
+        20,
+        25,
+        33,
+        35,
+        42,
+        36,
+        41,
+        51,
+        59,
+        56
+      ],
+      "uniform_samples": [
+        54,
+        54,
+        54,
+        54,
+        54,
+        53,
+        53,
+        53,
+        53,
+        53,
+        53,
+        53,
+        53,
+        53,
+        53
+      ],
+      "target_samples": [
+        99,
+        99,
+        2,
+        1,
+        7,
+        0,
+        99,
+        5,
+        99,
+        97,
+        0,
+        99,
+        99,
+        92,
+        2
+      ]
+    }
+  ],
+  "scope": "Nominal linear response with Johnson and independent receiver white noise; reference and current means have independent noise. Digital bridges are switched at calibrated excitation levels, without settling loss, wire loss, switching error or completion-resistor error. Receiver, switching and processing power are not modeled."
+}

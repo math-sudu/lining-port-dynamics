@@ -40,3 +40,23 @@ def test_routing_accounts_for_each_arm_and_four_instrument_leads():
     route = route_bridge(bridge, distance, distance, x + 2, np.zeros(8), .1)
     np.testing.assert_allclose(route["arm_length_m"], [10., 8., 12., 14.])
     assert route["total_conductor_m"] == 52.
+
+
+def test_balanced_gain_and_gauge_power_with_measured_cells_and_loaded_leads():
+    rng = np.random.default_rng(15017)
+    bridge = TrimmedBridge.from_weight(np.arange(16), rng.normal(size=16))
+    bridge = replace(bridge, attenuation=.9 * bridge.attenuation,
+                     nominal_ratio=rng.uniform(.99, 1.01, 16))
+    circuit = Circuit(gauge_factor=50., voltage=.8)
+    strain = rng.normal(0., 1e-4, 16)
+    for lead, receiver in ((0., np.inf), (250., 2e6)):
+        device = BridgeHardware.from_design(bridge, circuit, np.full(4, lead), lead, lead, receiver)
+        derivative = (device.voltage(1e-3 * strain) - device.voltage(-1e-3 * strain)) / .002
+        np.testing.assert_allclose(derivative, device.nominal_linear_gain() * (bridge.weight @ strain), atol=5e-13)
+        op = device.operating_point(np.zeros(16))
+        bridge_power = op['source_power_w'] - op['supply_wire_power_w']
+        np.testing.assert_allclose(op['gauge_power_w'] / bridge_power,
+                                   bridge.attenuation / (4 * bridge.arm_units), atol=1e-16)
+        dissipated = sum(np.sum(value) for key, value in op.items()
+                         if key.endswith('power_w') and key != 'source_power_w')
+        np.testing.assert_allclose(dissipated, op['source_power_w'], rtol=1e-14)

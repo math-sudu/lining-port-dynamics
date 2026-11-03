@@ -64,7 +64,7 @@ class TrimmedBridge:
     gauge_indices: np.ndarray
     arm: np.ndarray
     attenuation: np.ndarray
-    arm_units: int
+    arm_units: float
     nominal_ratio: np.ndarray | None = None
 
     def __post_init__(self):
@@ -78,7 +78,7 @@ class TrimmedBridge:
                 or not np.isfinite(self.resistance_ratio).all()
                 or self.resistance_ratio.shape != attenuation.shape
                 or np.any(attenuation > self.resistance_ratio)
-                or self.arm_units < np.bincount(arms, minlength=4).max()):
+                or not np.isfinite(self.arm_units) or self.arm_units <= 0):
             raise ValueError("Invalid gauge assignment, attenuation or arm capacity")
         if any(np.sum(np.sqrt(self.resistance_ratio[arms == j] * attenuation[arms == j]))
                > self.arm_units + 1e-13 for j in range(4)):
@@ -107,7 +107,7 @@ class TrimmedBridge:
         return ARM_SIGN[self.arm] * self.attenuation
 
     def arm_resistance(self, strain, circuit=Circuit(), attenuation=None):
-        """Exact arm resistance, including unused-slot fixed ballast."""
+        """Exact arm resistance about the prescribed balanced nominal scale."""
         strain = np.asarray(strain, dtype=float)[..., self.gauge_indices]
         x = circuit.gauge_factor * strain
         if not np.isfinite(x).all() or np.any(x <= -1):
